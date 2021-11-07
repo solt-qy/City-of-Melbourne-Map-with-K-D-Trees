@@ -26,15 +26,17 @@ struct node **compare_distance(struct node **current_node, coord_t query_coord,
     *counter = *counter + 1;
     double current_distance = check_distance(*current_node, query_coord);
 
+    //closest node is the the current node that is closest to the searched coordinate
     if(current_distance < *distance){
         closest_node = &(*current_node);
         *distance = current_distance;
     }
 
+    //At each layer of the tree, different key will be used for comparison
     if((*current_node)->comparing_key == 'x'){
-        //distance between x_coordinate larger than closest distance
-        if(pow(query_coord.x - (*current_node)->x_coordinate, SQUARE)
-                                                                > *distance){
+        //Comparion whether distance between x_coordinates is larger than closest distance
+        //If so, the search will only proceed to one side of the node
+        if(pow(query_coord.x - (*current_node)->x_coordinate, SQUARE)> *distance){
             if((*current_node) -> x_coordinate < query_coord.x){
                 closest_node = compare_distance(&((*current_node) -> right),
                                 query_coord, closest_node, distance, counter);
@@ -42,15 +44,19 @@ struct node **compare_distance(struct node **current_node, coord_t query_coord,
                 closest_node = compare_distance(&((*current_node) -> left),
                                 query_coord, closest_node, distance, counter);
             }
-        } else {
+        } 
+        //distance between x_coordinates is smaller than closest distance
+        //proceed to both branch of the node
+        else {
             closest_node = compare_distance(&((*current_node) -> right),
                                 query_coord, closest_node, distance, counter);
             closest_node = compare_distance(&((*current_node) -> left),
                                 query_coord, closest_node, distance, counter);
         }
-    } else {
-        if(pow(query_coord.y - (*current_node)->y_coordinate, SQUARE)
-                                                                > *distance){
+    } 
+    //similar logic applies to the comparison of y_coordinates
+    else {
+        if(pow(query_coord.y - (*current_node)->y_coordinate, SQUARE)> *distance){
             if((*current_node) -> y_coordinate < query_coord.y){
                 closest_node = compare_distance(&((*current_node) -> right),
                                 query_coord, closest_node, distance, counter);
@@ -74,7 +80,10 @@ void radius_search(struct node *tree_root,
 
     int counter = 0;
     int pt_within_radius = 0;
-    compare_radius(&tree_root, x_coordinate, y_coordinate, radius,
+    coord_t query_coord;
+    query_coord.x = atof(x_coordinate);
+    query_coord.y = atof(y_coordinate);
+    compare_radius(&tree_root, query_coord, radius,
                     &counter, &pt_within_radius, stream);
     printf("%s %s %s --> %d \n", x_coordinate, y_coordinate, radius, counter);
     if(!pt_within_radius){
@@ -83,25 +92,21 @@ void radius_search(struct node *tree_root,
     }
 }
 
-void compare_radius(struct node **current_node, char *x, char *y,
+void compare_radius(struct node **current_node, coord_t query_coord,
             char* radius, int *counter, int *pt_within_radius, FILE *stream){
 
     if(!(*current_node)){
         return;
     }
 
-    coord_t query_coord;
-    query_coord.x = atof(x);
-    query_coord.y = atof(y);
+
     double r = atof(radius);
     *counter = *counter + 1;
 
     if(check_distance(*current_node, query_coord) <= r*r){
         struct node **output_node = current_node;
-        output_radius_record(x, y, radius, *output_node, stream);
         while((*output_node)->next){
             output_node = &((*output_node)->next);
-            output_radius_record(x, y, radius, *output_node, stream);
         }
         *pt_within_radius = *pt_within_radius + 1;
     }
@@ -109,31 +114,31 @@ void compare_radius(struct node **current_node, char *x, char *y,
     if((*current_node)->comparing_key == 'x'){
         if(fabs(query_coord.x - (*current_node) -> x_coordinate) > r){
             if((*current_node) -> x_coordinate < query_coord.x){
-                compare_radius(&((*current_node) -> right), x, y,
+                compare_radius(&((*current_node) -> right), query_coord,
                                 radius, counter, pt_within_radius, stream);
             } else {
-                compare_radius(&((*current_node) -> left), x, y,
+                compare_radius(&((*current_node) -> left), query_coord,
                                 radius, counter, pt_within_radius, stream);
             }
         } else {
-            compare_radius(&((*current_node) -> right), x, y,
+            compare_radius(&((*current_node) -> right), query_coord,
                             radius, counter, pt_within_radius, stream);
-            compare_radius(&((*current_node) -> left), x, y,
+            compare_radius(&((*current_node) -> left), query_coord,
                             radius, counter, pt_within_radius, stream);
         }
     } else {
         if(fabs(query_coord.y - (*current_node) -> y_coordinate) > r){
             if((*current_node) -> y_coordinate < query_coord.y){
-                compare_radius(&((*current_node) -> right), x, y,
+                compare_radius(&((*current_node) -> right), query_coord,
                                 radius, counter, pt_within_radius, stream);
             } else {
-                compare_radius(&((*current_node) -> left), x, y,
+                compare_radius(&((*current_node) -> left), query_coord,
                                 radius, counter, pt_within_radius, stream);
             }
         } else {
-            compare_radius(&((*current_node) -> right), x, y,
+            compare_radius(&((*current_node) -> right), query_coord,
                             radius, counter, pt_within_radius, stream);
-            compare_radius(&((*current_node) -> left), x, y,
+            compare_radius(&((*current_node) -> left), query_coord,
                             radius, counter, pt_within_radius, stream);
         }
     }

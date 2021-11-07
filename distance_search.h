@@ -41,7 +41,7 @@ void radius_search(struct node *tree_root,
     k_d tree with the given coordinate and check if they are within
     the radius
 */
-void compare_radius(struct node **current_node, char *x, char *y,
+void compare_radius(struct node **current_node, coord_t query_coord,
         char* radius, int *counter, int *pt_within_radius, FILE *stream);
 
 /*
