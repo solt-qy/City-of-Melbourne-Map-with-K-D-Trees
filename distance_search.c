@@ -102,7 +102,7 @@ void compare_radius(struct node **current_node, coord_t query_coord,
 
     double r = atof(radius);
     *counter = *counter + 1;
-
+    //output_node is a linked list that will store all the nodes with in the distance
     if(check_distance(*current_node, query_coord) <= r*r){
         struct node **output_node = current_node;
         while((*output_node)->next){
